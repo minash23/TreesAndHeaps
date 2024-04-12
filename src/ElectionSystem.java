@@ -1,37 +1,28 @@
-import java.util.Collections;
-import java.util.List;
+import java.util.LinkedList;
 
-class ElectionSystem {
-    Election election;
+public class ElectionSystem {
+    public static void main(String[] args) {
+        Election election = new Election();
+        LinkedList<String> candidates = new LinkedList<>();
 
-    public ElectionSystem() {
-        election = new Election();
-    }
+        candidates.add("Marcus Fenix");
+        candidates.add("Dominic Santiago");
+        candidates.add("Damon Baird");
+        candidates.add("Cole Train");
+        candidates.add("Anya Stroud");
 
-    public void initializeElection(List<String> candidates, int electorateVotes) {
         election.initializeCandidates(candidates);
-        System.out.println("Initialized Election with " + candidates.size() + " candidates.");
-    }
 
-    public void castVotes(int numberOfVotes) {
-        System.out.println("Casting " + numberOfVotes + " votes:");
-        for (int i = 0; i < numberOfVotes; i++) {
-            election.castRandomVote();
-        }
-    }
+        int p = 5;
+        election.castVote("Cole Train");
+        election.castVote("Cole Train");
+        election.castVote("Marcus Fenix");
+        election.castVote("Anya Stroud");
 
-    public void rigElection(String candidateName) {
-        System.out.println("Rigging election for candidate: " + candidateName);
-        election.rigElection(candidateName);
-    }
-
-    public void getTopKCandidates(int k) {
-        List<String> topCandidates = election.getTopKCandidates(k);
-        System.out.println("Top " + k + " candidates:");
-        System.out.println(topCandidates);
-    }
-
-    public void auditElection() {
+        System.out.println("Top 3 candidates after 5 votes: " + election.getTopKCandidates(3));
+        election.rigElection("Marcus Fenix", 2);
+        System.out.println("Top 3 candidates after rigging the election: " + election.getTopKCandidates(3));
+        System.out.println("Audit of the election:");
         election.auditElection();
     }
 }

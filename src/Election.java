@@ -1,52 +1,71 @@
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Random;
 
 class Election {
-    PriorityQueue<Map.Entry<String, Integer>> maxHeap;
-    Map<String, Integer> candidatesMap;
+    private Map<String, Integer> candidates;
+    private PriorityQueue<Map.Entry<String, Integer>> maxHeap;
+    private int totalVotes;
 
-    public Election() {
+    Election() {
+        candidates = new HashMap<>();
         maxHeap = new PriorityQueue<>((a, b) -> b.getValue() - a.getValue());
-        candidatesMap = new HashMap<>();
+        totalVotes = 0;
     }
 
-    public void initializeCandidates(List<String> candidates) {
-        for (String candidate : candidates) {
-            candidatesMap.put(candidate, 0);
+    public void initializeCandidates(LinkedList<String> candidatesList) {
+        for (String candidate : candidatesList) {
+            candidates.put(candidate, 0);
         }
-        maxHeap.addAll(candidatesMap.entrySet());
     }
 
-    public void castVote(String candidateName) {
-        Integer votes = candidatesMap.getOrDefault(candidateName, 0);
-        candidatesMap.put(candidateName, votes + 1);
-        refreshHeap();
+    public void castVote(String candidate) {
+        if (candidates.containsKey(candidate)) {
+            candidates.put(candidate, candidates.get(candidate) + 1);
+            totalVotes++; // Increment total votes
+            refreshHeap();
+        } else {
+            System.out.println("Candidate not found.");
+        }
     }
 
     public void castRandomVote() {
-        List<String> candidatesList = new ArrayList<>(candidatesMap.keySet());
         Random random = new Random();
-        String randomCandidate = candidatesList.get(random.nextInt(candidatesList.size()));
+        LinkedList<String> candidateList = new LinkedList<>(candidates.keySet());
+        String randomCandidate = candidateList.get(random.nextInt(candidateList.size()));
         castVote(randomCandidate);
     }
 
-    public void rigElection(String candidateName) {
-        Integer currentVotes = candidatesMap.getOrDefault(candidateName, 0);
-        int totalVotes = candidatesMap.values().stream().mapToInt(Integer::intValue).sum();
-        int votesNeeded = totalVotes + 1;
-        candidatesMap.put(candidateName, votesNeeded);
-        refreshHeap();
+    public void rigElection(String candidate, int p) {
+        if (candidates.containsKey(candidate)) {
+            int currentVotes = candidates.get(candidate);
+            int additionalVotes = p;
+
+            totalVotes += additionalVotes;
+
+            candidates.put(candidate, currentVotes + p);
+            refreshHeap();
+        } else {
+            System.out.println("Candidate not found.");
+        }
     }
 
-    public List<String> getTopKCandidates(int k) {
-        List<String> topCandidates = new ArrayList<>();
-        for (int i = 0; i < k && !maxHeap.isEmpty(); i++) {
-            topCandidates.add(maxHeap.poll().getKey());
+    public LinkedList<String> getTopKCandidates(int k) {
+        LinkedList<String> topCandidates = new LinkedList<>();
+        PriorityQueue<Map.Entry<String, Integer>> tempHeap = new PriorityQueue<>(maxHeap);
+
+        for (int i = 0; i < k; i++) {
+            Map.Entry<String, Integer> entry = tempHeap.poll();
+            if (entry != null) {
+                topCandidates.add(entry.getKey());
+            }
         }
         return topCandidates;
     }
 
     public void auditElection() {
-        System.out.println("Audit of Election:");
         for (Map.Entry<String, Integer> entry : maxHeap) {
             System.out.println(entry.getKey() + " - " + entry.getValue());
         }
@@ -54,6 +73,6 @@ class Election {
 
     private void refreshHeap() {
         maxHeap.clear();
-        maxHeap.addAll(candidatesMap.entrySet());
+        maxHeap.addAll(candidates.entrySet());
     }
 }
